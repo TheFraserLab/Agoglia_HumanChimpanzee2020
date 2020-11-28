@@ -1,8 +1,7 @@
 # Agoglia_HumanChimpanzee2020
 Code used for data analysis and figure making for the human-chimpanzee cell fusion project/manuscript. For questions regarding code or analysis, please open a new issue. For questions regarding the project as a whole, access to cell lines, etc., please contact the corresponding authors:
 
-Hunter B Fraser hbfraser@stanford.edu
-Sergiu P Pasca  spasca@stanford.edu
+Hunter B Fraser (hbfraser@stanford.edu) and Sergiu P Pasca (spasca@stanford.edu)
 
 Raw and processed data for this project is freely available at https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE144825
 
