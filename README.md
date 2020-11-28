@@ -2,7 +2,6 @@
 Code used for data analysis and figure making for the human-chimpanzee cell fusion project/manuscript. For questions regarding code or analysis, please open a new issue. For questions regarding the project as a whole, access to cell lines, etc., please contact the corresponding authors:
 
 Hunter B Fraser hbfraser@stanford.edu
-
 Sergiu P Pasca  spasca@stanford.edu
 
 Raw and processed data for this project is freely available at https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE144825
@@ -33,9 +32,9 @@ This folder contains all of the code used to generate the plots presented in Ago
   - karyo.sbactch: how to run this script on Sherlock, potentially useful for the Fraser lab
   - Figure1.R: Analysis and plots for Fig. 1 and Extended Data Fig. 1, 2, 3 - hybrid iPS cells (excepting the karyotype plots mentioned above)
   - Figure2.R: Analysis and plots for Fig. 2 and Extended Data Fig. 4, 5 - hybrid cortical spheroids (excepting single cell karyotype and Monocle plots mentioned below)
+  - Figure2_scKaryo.R: Analysis and plots for Extended Data Fig. 4h,i,j - single cell karyotype analysis
   - Figure2_Monocle.R: Analysis and plots for Fig. 2 - cell trajectory mapping with Monocle 
   - Figure3.R: 
   - Figure3_parental.R: 
   - Figure4.R: Analysis and plots for Fig. 4 and Extended Data Fig. 9, 10 - ASE genes and functional validation of SSTR2
-  - scKaryo.R: Analysis and plots for Extended Data Fig. 4h,i,j - single cell karyotype analysis
  
