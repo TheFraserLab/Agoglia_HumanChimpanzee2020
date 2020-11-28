@@ -28,13 +28,13 @@ Figures
 
 This folder contains all of the code used to generate the plots presented in Agoglia et al. 
 
-  - karyotype.R: used to generate Extended Data Figure 2a,b,d
-  - karyo.sbactch: how to run this script on Sherlock, potentially useful for the Fraser lab
-  - Figure1.R: Analysis and plots for Fig. 1 and Extended Data Fig. 1, 2, 3 - hybrid iPS cells (excepting the karyotype plots mentioned above)
-  - Figure2.R: Analysis and plots for Fig. 2 and Extended Data Fig. 4, 5 - hybrid cortical spheroids (excepting single cell karyotype and Monocle plots mentioned below)
-  - Figure2_scKaryo.R: Analysis and plots for Extended Data Fig. 4h,i,j - single cell karyotype analysis
-  - Figure2_Monocle.R: Analysis and plots for Fig. 2 - cell trajectory mapping with Monocle 
-  - Figure3.R: 
-  - Figure3_parental.R: 
-  - Figure4.R: Analysis and plots for Fig. 4 and Extended Data Fig. 9, 10 - ASE genes and functional validation of SSTR2
+  - karyotype.R: Used to generate Extended Data Figure 2a,b,d
+  - karyo.sbactch: How to run this script on Sherlock, potentially useful for the Fraser lab
+  - Figure1.R: Analysis and plots for Figure 1e-k and Extended Data Figures 1f, 2c,e, 3a,c,d: hybrid iPS cells
+  - Figure2.R: Analysis and plots for Figures 2c-f, 4b and Extended Data Figures 4a-c, 5, 8e: hybrid cortical spheroids
+  - Figure2_scKaryo.R: Analysis and plots for Extended Data Figure 4h-j: single cell karyotype analysis
+  - Figure2_Monocle.R: Analysis and plots for Figure 2g-i and Extended Data Figure 3h: monocle analysis
+  - Figure3.R: Analysis and plots for Figure 3d-e and Extended Data Figures 4f-g, 7a-e, g: allele specific expression in CS
+  - Figure3_parental.R: Analysis and plots for Figure 3c,f-l and Extended Data Figure 6d-e, 7f,h, 8b-d: hCS and cCS timecourse data
+  - Figure4.R: Analysis and plots for Figure 4a,b,e,f,i,k,l and Extended Data Figures 8e-g, 9a-i,k, 10a-b, d-e: ASE genes and SSTR2
  
