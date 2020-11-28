@@ -1,25 +1,26 @@
-# the module command actually needs to edit the shell environment, and is not a real executable
+# The module command actually needs to edit the shell environment, and is not a real executable
 module = """module () {
         eval $($LMOD_CMD bash "$@")
         [ $? = 0 ] && eval $(${LMOD_SETTARG_CMD:-:} -s sh)
         }"""
 
-# Separate data from code!
+# Sample info
 configfile: 'config.json'
 
-species = [ "chimp"]
+species = ["human", "chimp"]
 samples = config['samples']
 read_length = 150
 
+
 rule all:
     input: 
-#expand('analysis/{species}/{sample}/{sample}_ase_by_reads_merged.txt', species=species, sample=samples)
         expand('analysis/{species}/{sample}/{sample}_ase_by_reads_merged.chr.txt', species=species, sample=samples)
 
+	
 def seqprep_inputs(wildcards):
     return config["samples"][wildcards.sample]
 
-
+# Trim adapter sequences
 rule seqprep:
     input: 
         seqprep_inputs
@@ -33,8 +34,10 @@ rule seqprep:
 			-A GATCGGAAGAGCACACGTCT -B GATCGGAAGAGCGTCGTGTA
     """
  
+
 overhang = read_length - 1
 
+# Generate STAR genome index files
 rule star_genome:
     input: 
         fasta="/scratch/users/ragoglia/reference/{species}/{species}.fasta",
@@ -54,6 +57,7 @@ rule star_genome:
             --outTmpDir /scratch/users/ragoglia/reference/{wildcards.species}/STAR/tmp
     """
 
+# Map reads with STAR (first pass)	
 rule star_align:
     input: 
         R1="analysis/{sample}/r1_trimmed.fq.gz", R2="analysis/{sample}/r2_trimmed.fq.gz",
@@ -79,6 +83,7 @@ rule star_align:
 			--outFilterMultimapNmax 1
     """
  
+# Map reads with STAR (second pass, incorporates splice junctions idetified in previous step)
 rule star_align2:
     input: 
         R1="analysis/{sample}/r1_trimmed.fq.gz", R2="analysis/{sample}/r2_trimmed.fq.gz",
@@ -102,18 +107,8 @@ rule star_align2:
 			--outFilterMultimapNmax 1 \
 			--sjdbFileChrStartEnd {input.sj}
     """
-#
-#rule rmdup:
-#    input: "analysis/{species}/{sample}/STAR2/Aligned.sortedByCoord.out.bam"
-#    output: "analysis/{species}/{sample}/rmdup.bam"
-#    log: "logs/{sample}_rmdups.log"
-#    shell: """
-#    java -jvm-args -jar /scratch/users/ragoglia/bin/picard.jar MarkDuplicates I={input} O={output} M={log} \
-#		REMOVE_DUPLICATES=true \
-#		DUPLICATE_SCORING_STRATEGY=RANDOM
-#        """
-#
-#FOR TESTING ONLY
+
+# Sort by coordinate	
 rule sort:
     input: 
         "analysis/{genome}/{sample}/STAR2/Aligned.out.bam"
@@ -124,8 +119,7 @@ rule sort:
         {input} -o {output}
     """
 
-
-#FOR TESTING ONLY 
+# Remove duplicates with samtools, randomize which duplicate gets discareded
 rule rmdup:
      input: "analysis/{species}/{sample}/STAR2/Aligned.out.sort.bam"
      output: "analysis/{species}/{sample}/rmdup.bam"
@@ -133,6 +127,8 @@ rule rmdup:
      python ~/bin/Genomics/rmdup_for_ase.py \
          -i {input} -o {output} -p -s /home/users/ragoglia/bin/samtools-0.1.19/samtools
      """
+	
+# Index the bam file	
 rule index:
     input:
         "analysis/{genome}/{sample}/rmdup.bam"
@@ -141,6 +137,7 @@ rule index:
         
     shell: " {module}; module load samtools/1.3; samtools index {input}"
 
+# First step of Hornet/WASP: extract reads that overlap SNPs	
 rule wasp_find_snps:
     input: 
         bam="analysis/{genome}/{sample}/rmdup.bam",
@@ -157,6 +154,7 @@ rule wasp_find_snps:
         {input.bam} {input.snpdir}
     """
 
+# Remap reads that overlap SNPs 	
 rule wasp_remap:
     input:
         R1="analysis/{genome}/{sample}/rmdup.remap.fq1.gz",
@@ -181,6 +179,8 @@ rule wasp_remap:
             --readFilesIn {input.R1} {input.R2}
     mv analysis/{wildcards.genome}/{wildcards.sample}/remapAligned.out.bam {output}
             """
+	
+# Sort remapped reads by read name (contains info on where they mapped the first time)	
 rule sort_wasp:
     input: 
         "analysis/{genome}/{sample}/rmdup.remap.bam"
@@ -192,7 +192,7 @@ rule sort_wasp:
         {input} -o {output}
     """
 
-
+# Second step of WASP, only keep reads that mapped to the same place
 rule wasp_filter:
     input: 
         toremap="analysis/{genome}/{sample}/rmdup.to.remap.bam",
@@ -207,7 +207,7 @@ rule wasp_filter:
         {output}
     """
 
-            
+# Sort the retained reads that overlap SNPs           
 rule sort_ase:
     input: 
         "analysis/{genome}/{sample}/rmdup.remap.kept.bam"
@@ -218,6 +218,7 @@ rule sort_ase:
         {input} -o {output}
     """
 
+# Sort the kept reads that did not overlap SNPs	
 rule sort_keep:
     input: 
         "analysis/{genome}/{sample}/rmdup.keep.bam"
@@ -228,8 +229,7 @@ rule sort_keep:
         {input} -o {output}
     """
  
-
-
+# Merge all the retained SNPs into one bam file
 rule wasp_merge:
     input:
         "analysis/{genome}/{sample}/rmdup.remap.kept.sort.bam",
@@ -239,7 +239,7 @@ rule wasp_merge:
     shell:
         "{module}; module load samtools/1.3; samtools merge {output} {input}"
 
-
+# Index the reads
 rule index_ase:
     input:
         "analysis/{genome}/{sample}/rmdup.remap.kept.merged.bam"
@@ -248,6 +248,7 @@ rule index_ase:
         
     shell: " {module}; module load samtools/1.3; samtools index {input}"
 
+# Count allelic expression with ASEr	
 rule count_ase:
     input:
         snps="/home/users/ragoglia/SNPs/ase/{genome}/ASE_SNPs.FILTER.SPLIT_SPECIES.bed",      
@@ -257,61 +258,8 @@ rule count_ase:
     conda:"/home/users/ragoglia/envs/test.yml" 
     output:
         "analysis/{genome}/{sample}/{sample}_ase_by_reads_merged.chr.txt"
-#shell: """{module}; module load conda;
     shell: """python ~/bin/ASEr/bin/GetGeneASEbyReads.py \
         {input.snps} {input.gff} {input.reads}\
         -o {output}
     """
 
-#ENSEMBL = "89"
-#GRCh = "GRCh38"
-#ChimpV = "2.1.4"
-#
-#rule get_human_fasta:
-#    input: 
-#    output: "reference/human.fasta"
-#    version: ENSEMBL
-#    shell: """{module}; module load wget;
-#    rm -f {output}.gz
-#    wget -O {output}.gz ftp://ftp.ensembl.org/pub/release-{ENSEMBL}/fasta/homo_sapiens/dna/Homo_sapiens.{GRCh}.dna.toplevel.fa.gz
-#    gunzip {output}.gz
-#    """
-#
-#rule get_chimp_fasta:
-#    input: 
-#    output: "reference/chimp.fasta"
-#    version: ENSEMBL
-#    shell: """{module}; module load wget;
-#    rm -f {output}.gz
-#    wget -O {output}.gz ftp://ftp.ensembl.org/pub/release-{ENSEMBL}/fasta/pan_troglodytes/dna/Pan_troglodytes.CHIMP{ChimpV}.dna_rm.toplevel.fa.gz
-#    gunzip {output}.gz
-#    """
-#
-#rule get_human_gff:
-#    input: 
-#    output: "reference/human.gff"
-#    version: ENSEMBL
-#    shell: """{module}; module load wget;
-#    rm -f {output}.gz
-#    wget -O {output}.gz ftp://ftp.ensembl.org/pub/release-{ENSEMBL}/gff3/homo_sapiens/Homo_sapiens.{GRCh}.{ENSEMBL}.chr.gff3.gz
-#    gunzip {output}.gz
-#    """
-#
-#rule get_chimp_gff:
-#    input: 
-#    output: "reference/chimp.gff"
-#    version: ENSEMBL
-#    shell: """{module}; module load wget;
-#    rm -f {output}.gz
-#    wget -O {output}.gz ftp://ftp.ensembl.org/pub/release-{ENSEMBL}/gff3/pan_troglodytes/Pan_troglodytes.CHIMP{ChimpV}.{ENSEMBL}.chr.gff3.gz
-#    gunzip {output}.gz
-#    """
-#
-#rule get_snps:
-#    input:
-#        "reference/{reference}.fasta",
-#    params:
-#        alternate = lambda wildcards: ["chimp", "human"][wildcards.reference=="chimp"]
-#    output:
-#        "analysis/{reference}/snps.bed"
-#    shell: "echo {wildcards.reference} {params.alternate}> {output}"
