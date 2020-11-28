@@ -34,6 +34,6 @@ This folder contains all of the code used to generate the plots presented in Ago
   - Figure2_scKaryo.R: Analysis and plots for Extended Data Figure 4h-j: single cell karyotype analysis
   - Figure2_Monocle.R: Analysis and plots for Figure 2g-i and Extended Data Figure 3h: monocle analysis
   - Figure3.R: Analysis and plots for Figure 3d-e and Extended Data Figures 4f-g, 7a-e,g: allele specific expression in CS
-  - Figure3_parental.R: Analysis and plots for Figure 3c,f-l and Extended Data Figure 6d-e, 7f,h, 8b-d: hCS and cCS timecourse data
+  - Figure3_parental.R: Analysis and plots for Figure 3c,f-l and Extended Data Figure 6d-e, 7f,h, 8a-d: hCS and cCS timecourse data
   - Figure4.R: Analysis and plots for Figure 4a,b,e,f,i,k,l and Extended Data Figures 8e-g, 9a-i,k, 10a-b,d-e: ASE genes and SSTR2
  
