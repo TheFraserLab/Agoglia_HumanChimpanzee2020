@@ -1,4 +1,4 @@
-## Analysis and plots for Figure 3c,f-l and Extended Data Figure 6d-e, 7f,h, 8b-d: hCS and cCS timecourse data
+## Analysis and plots for Figure 3c,f-l and Extended Data Figure 6d-e, 7f,h, 8a-d: hCS and cCS timecourse data
 ## Everything here was performed in Rstudio on a Macbook Pro with 16G RAM, unless otherwise noted
 ## Clear cache in Rstudio
 rm(list = ls(all.names = TRUE))
@@ -600,6 +600,7 @@ table(net$colors)
 sizeGrWindow(12, 9)
 mergedColors = labels2colors(net$colors)
 
+# Extended Data Figure 8a
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
                     "Module colors",
                     dendroLabels = FALSE, hang = 0.03,
